@@ -27,6 +27,8 @@
         hyprlogin = final.callPackage ./pkgs/hyprlogin.nix { src = hyprlogin-src; };
       };
 
+      nixosModules.default = import ./modules/nixos.nix;
+
       packages = forEachSystem (pkgs: rec {
         hyprlogin = pkgs.callPackage ./pkgs/hyprlogin.nix { src = hyprlogin-src; };
         default = hyprlogin;
