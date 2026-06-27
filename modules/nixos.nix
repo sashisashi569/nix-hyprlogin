@@ -27,33 +27,32 @@ in {
     extraHyprloginConfig = lib.mkOption {
       type = lib.types.lines;
       default = "";
-      description = "Extra lines appended to /etc/hyprlogin/hyprlogin.conf.";
+      description = "Extra lines appended to the generated hyprlogin config.";
     };
   };
 
   config = lib.mkIf cfg.enable {
-    # サンプルコンフィグを source で取り込み、NixOS 固有の値だけ上書きする。
-    # セッションファイルは /run/current-system/sw/share 以下に置かれるため
-    # デフォルトの /usr/share では検出できない。
-    environment.etc."hyprlogin/hyprlogin.conf".text = ''
-      source = ${cfg.package}/share/hyprlogin/examples/hyprlogin.conf
-      general {
-        exit_command = ${cfg.hyprlandPackage}/bin/hyprctl dispatch exit
-      }
-      sessions {
-        wayland_path = /run/current-system/sw/share/wayland-sessions
-        x11_path = /run/current-system/sw/share/xsessions
-      }
-      ${cfg.extraHyprloginConfig}
-    '';
-
     services.greetd = {
       enable = true;
       settings.default_session = {
         command =
           let
+            # NixOS のセッションファイルは /run/current-system/sw/share 以下。
+            # /etc/hyprlogin/hyprlogin.conf への依存を避け、-c で Nix store 内の
+            # 設定ファイルを直接渡すことで確実に設定が反映される。
+            hyprloginConf = pkgs.writeText "hyprlogin.conf" ''
+              source = ${cfg.package}/share/hyprlogin/examples/hyprlogin.conf
+              general {
+                exit_command = ${cfg.hyprlandPackage}/bin/hyprctl dispatch exit
+              }
+              sessions {
+                wayland_path = /run/current-system/sw/share/wayland-sessions
+                x11_path = /run/current-system/sw/share/xsessions
+              }
+              ${cfg.extraHyprloginConfig}
+            '';
             hyprlandGreeterConf = pkgs.writeText "hyprland-greeter.conf" ''
-              exec-once = ${cfg.package}/bin/hyprlogin
+              exec-once = ${cfg.package}/bin/hyprlogin -c ${hyprloginConf}
               monitor = ,preferred,auto,1
               input {
                 kb_layout = ${cfg.kbLayout}
@@ -66,10 +65,8 @@ in {
       };
     };
 
-    # hyprlogin の exit_command で hyprctl を使うため PATH に含める
     environment.systemPackages = [ cfg.hyprlandPackage ];
 
-    # greeter ユーザーに GPU アクセス権限を付与
     users.users.greeter = {
       isSystemUser = true;
       group = "greeter";
