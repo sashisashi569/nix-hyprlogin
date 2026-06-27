@@ -32,9 +32,11 @@ in {
   };
 
   config = lib.mkIf cfg.enable {
-    # NixOS のセッションファイルは /run/current-system/sw/share 以下に置かれるため
-    # デフォルトの /usr/share では検出できない。/etc/hyprlogin/hyprlogin.conf で上書きする。
+    # サンプルコンフィグを source で取り込み、NixOS 固有の値だけ上書きする。
+    # セッションファイルは /run/current-system/sw/share 以下に置かれるため
+    # デフォルトの /usr/share では検出できない。
     environment.etc."hyprlogin/hyprlogin.conf".text = ''
+      source = ${cfg.package}/share/hyprlogin/examples/hyprlogin.conf
       general {
         exit_command = ${cfg.hyprlandPackage}/bin/hyprctl dispatch exit
       }
