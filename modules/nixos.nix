@@ -23,9 +23,28 @@ in {
       default = "";
       description = "Extra lines appended to the greeter Hyprland config.";
     };
+
+    extraHyprloginConfig = lib.mkOption {
+      type = lib.types.lines;
+      default = "";
+      description = "Extra lines appended to /etc/hyprlogin/hyprlogin.conf.";
+    };
   };
 
   config = lib.mkIf cfg.enable {
+    # NixOS のセッションファイルは /run/current-system/sw/share 以下に置かれるため
+    # デフォルトの /usr/share では検出できない。/etc/hyprlogin/hyprlogin.conf で上書きする。
+    environment.etc."hyprlogin/hyprlogin.conf".text = ''
+      general {
+        exit_command = ${cfg.hyprlandPackage}/bin/hyprctl dispatch exit
+      }
+      sessions {
+        wayland_path = /run/current-system/sw/share/wayland-sessions
+        x11_path = /run/current-system/sw/share/xsessions
+      }
+      ${cfg.extraHyprloginConfig}
+    '';
+
     services.greetd = {
       enable = true;
       settings.default_session = {
