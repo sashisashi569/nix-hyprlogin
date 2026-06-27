@@ -1,0 +1,44 @@
+{
+  "nodes": {
+    "hyprlogin-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1780094239,
+        "narHash": "sha256-TkkBr5PeOLA5r19paXmgwE/lRz7OSZp7KHfEkviHkpI=",
+        "owner": "AuthenticSm1les",
+        "repo": "hyprlogin",
+        "rev": "254a6a14e37d7a5533498c39fb09f2d631b504d4",
+        "type": "github"
+      },
+      "original": {
+        "owner": "AuthenticSm1les",
+        "repo": "hyprlogin",
+        "type": "github"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1782467914,
+        "narHash": "sha256-pGvFkM8N0xEkIIXDe5YYfbEAvHrk4IxBrjB/x8OomhE=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "e73de5be04e0eff4190a1432b946d469c794e7b4",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "hyprlogin-src": "hyprlogin-src",
+        "nixpkgs": "nixpkgs"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}
